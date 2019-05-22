@@ -1,7 +1,6 @@
 package com.example.ex07_grapic;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -10,11 +9,9 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,12 +35,11 @@ public class GameActivity extends AppCompatActivity {
         Drawable missile;    //총알 이미지
         Drawable enemy;      //적 이미지
         Drawable explousure; //폭발이미지
-        Random random=new Random();
         // SoundPool 사운드(1m), MediaPlayer 사운드(1m이상),동영상
 
         MediaPlayer fire;    //발사음
         MediaPlayer hit;     //타격음
-        int eNum=1;            //적 기체 수
+        int eCheck;            //적 기체 번호
         int width, height;   //화면 가로,세로
         int gunshipWidth, gunshipHeight;  //사용자 비행기 가로,세로
         int missileWidth, missileHeight;     //미사일 가로,세로
@@ -58,7 +54,6 @@ public class GameActivity extends AppCompatActivity {
         boolean isHit;                       //폭발 여부
         List<Missile> mlist;                 //총알 리스트
         List<Enemy>elist;                    //적 리스트
-        int go=3;                           //적의 이동 속도
         //생성자
         public MyView(Context context) {
             super(context);
@@ -76,6 +71,7 @@ public class GameActivity extends AppCompatActivity {
             elist=new ArrayList<>();
             //백그라운드 스레드 생성 -> 그러면 run이 돌아간다.
             Thread th = new Thread(this);
+
             th.start();
         }
 
@@ -86,43 +82,31 @@ public class GameActivity extends AppCompatActivity {
                 //사용자의 사각영역
                 Rect rectG=new Rect(x,y,x+gunshipWidth,y+gunshipHeight);
 
-                //적기체 이동
-                for (go = 0;go < mlist.size();go++){
+                for (int enemy = 0;enemy < mlist.size();enemy++){
 
-                    Enemy e= elist.get(go);  //i번째 적    적을 생성 하게 되면 어레이리스트에 계속 쌓인다.
+                    Enemy e= elist.get(enemy);  //i번째 적    적을 생성 하게 되면 어레이리스트에 계속 쌓인다.
                     e.setEx(e.getEy()-3);  //x좌표 움직임
                     e.setEy(e.getEy()+3);
+                    eCheck=enemy;
                     if (e.getEx()<0){
                        e.setEx(width-5);
                             //x좌표가
                     }
                     if(e.getEy()>height){  //y좌표가 맨 아래로 내려오면 리스트에서 제거()
-                        elist.remove(go);
-                        go=0;
+                        e.setEy(0);
                     }
-                    Rect rectE=new Rect(ex,ey,ex+enemyWidth,ey+enemyHeight);
+                    Rect rectE=new Rect(e.getEx(),e.getEy(),e.getEx()+enemyWidth,e.getEy()+enemyHeight);
                     if(rectG.intersect(rectE)){ //적기와 내가 박았다?
                         hit.start();
                         isHit = true;
-                        hx = ex;
-                        hy = ey;//폭발한 x,y좌표 저장
+                        hx = e.getEx();
+                        hy = e.getEy();//폭발한 x,y좌표 저장
                         break;//일단 사용자가 박으면 프로그램 자체가 멈추게 함
-
-
                     }
 
-                }
-
-                Rect rectE=new Rect(ex,ey,ex+enemyWidth,ey+enemyHeight);
-                if(rectG.intersect(rectE)){ //적기와 내가 박았다?
-                    hit.start();
-                    isHit = true;
-                    hx = ex;
-                    hy = ey;//폭발한 x,y좌표 저장
-                    break;//일단 사용자가 박으면 프로그램 자체가 멈추게 함
-
 
                 }
+
                 //미사일 좌표
                 for (int i = 0;i < mlist.size();i++){
                     Missile m= mlist.get(i);  //i번째 총알    총알을 발사하게 되면 어레이리스트에 계속 쌓인다.
@@ -136,9 +120,9 @@ public class GameActivity extends AppCompatActivity {
 
                     //총알의 사각영역
                     Rect rectM=new Rect(m.getMx(),m.getMy(),m.getMx()+missileWidth,m.getMy()+missileHeight);
-
+                    Enemy e=elist.get(eCheck);
+                    Rect rectE=new Rect(e.getEx(),e.getEy(),e.getEx()+enemyWidth,e.getEy()+enemyHeight);
                     //겹치는 걸로 충돌 판정
-                    Random random=new Random();
                     if(rectE.intersect(rectM)){  //겹쳐졌다?=>충돌
                         hit.start();             //폭발음 플레이
                         isHit = true;            //폭발 상태로 변경
@@ -146,7 +130,7 @@ public class GameActivity extends AppCompatActivity {
                         hx = ex;
                         hy = ey;                 //폭발한 x,y좌표 저장
                         mlist.remove(i); //총알 리스트에서 총알을 제거
-                        elist.remove(go);
+                        elist.remove(eCheck);
                        /* ex = random.nextInt(width - enemyWidth)+1;
                         ey = 0; //적 좌표 초기화*/
                     }
@@ -159,6 +143,7 @@ public class GameActivity extends AppCompatActivity {
                 }
                 postInvalidate(); //화면 갱신 요청 => onDraw()가 호출됨 그림을 다시 새로 스아악 그린다.
             }
+
 
         }
         //화면 사이즈가 변경될 때( 최초 가로, 최초 세로, 전환 가로, 전환 세로)
@@ -191,6 +176,9 @@ public class GameActivity extends AppCompatActivity {
             //적 초기 좌표
             ex = random.nextInt(width - enemyWidth)+1;
             ey = 0;
+            //초기에 적 한마리 생성
+            Enemy e = new Enemy(ex,ey);
+            elist.add(e);
         }
 
         @Override
@@ -207,8 +195,6 @@ public class GameActivity extends AppCompatActivity {
                 //폭발 이미지 출력
                 explousure.setBounds(hx - 20, hy - 20, hx + hitWidth - 20, hy + hitHeight - 20);
                 explousure.draw(canvas);
-                eNum++; //적 수 추가
-
                 try {
                     Thread.sleep(200);
                 } catch (Exception e) {
@@ -221,6 +207,7 @@ public class GameActivity extends AppCompatActivity {
                     Enemy e=elist.get(i);
                     enemy.setBounds(e.getEx(), e.getEy(), e.getEx() + enemyWidth, e.getEy() + enemyHeight);
                     enemy.draw(canvas);
+
                 }
             }
             //총알 출력
@@ -230,6 +217,7 @@ public class GameActivity extends AppCompatActivity {
                 missile.draw(canvas);      // i번째 총알 츨력
             }
 
+
             //점수 출력
             String str = "POINT : "+ point;
             Paint paint = new Paint();
@@ -238,10 +226,10 @@ public class GameActivity extends AppCompatActivity {
             canvas.drawText(str,width/2,40,paint);
 
 
-            for(int i=0;i<eNum;i++){
-                Enemy em = new Enemy(random.nextInt(width),ey);
-                elist.add(em);
-            }
+
+               // Enemy em = new Enemy(random.nextInt(width),ey);
+                //elist.add(em);
+
             super.onDraw(canvas);
 
         }
