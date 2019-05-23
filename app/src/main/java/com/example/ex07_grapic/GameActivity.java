@@ -19,7 +19,33 @@ import java.util.List;
 import java.util.Random;
 
 public class GameActivity extends AppCompatActivity {
+    Drawable backImg;    //배경
+    Drawable gunship;    //사용자 비행기 이미지
+    Drawable missile;    //총알 이미지
+    Drawable enemy;      //적 이미지
+    Drawable explousure; //폭발이미지
+    // SoundPool 사운드(1m), MediaPlayer 사운드(1m이상),동영상
 
+    MediaPlayer fire;    //발사음
+    MediaPlayer hit;     //타격음
+
+    int width, height;   //화면 가로,세로
+    int gunshipWidth, gunshipHeight;  //사용자 비행기 가로,세로
+    int missileWidth, missileHeight;     //미사일 가로,세로
+    int enemyWidth, enemyHeight;        //적 가로, 세로
+    int hitWidth, hitHeight;             //폭발 이미지 가로, 세로
+    int x,y;                             //비행기좌표
+    int mx,my;                           //미사일좌표
+    int ex,ey;                           //적좌표
+    int hx,hy;                           //폭발좌표
+    int point=0;                         //점수
+    boolean isFire;                      //총알발사 여부
+    boolean isHit;                       //폭발 여부
+    String tag;
+    Random random=new Random();
+
+    List<Missile> mlist;                 //총알 리스트
+    List<Enemy>elist;                    //적 리스트
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,36 +55,12 @@ public class GameActivity extends AppCompatActivity {
         setContentView(view); //xml이 아닌 내부뷰 (커스텀 뷰)로 화면 이용
     }
 
+
+
     //내부 클래스
     class MyView extends View implements Runnable{
 
-        Drawable backImg;    //배경
-        Drawable gunship;    //사용자 비행기 이미지
-        Drawable missile;    //총알 이미지
-        Drawable enemy;      //적 이미지
-        Drawable explousure; //폭발이미지
-        // SoundPool 사운드(1m), MediaPlayer 사운드(1m이상),동영상
 
-        MediaPlayer fire;    //발사음
-        MediaPlayer hit;     //타격음
-
-        int width, height;   //화면 가로,세로
-        int gunshipWidth, gunshipHeight;  //사용자 비행기 가로,세로
-        int missileWidth, missileHeight;     //미사일 가로,세로
-        int enemyWidth, enemyHeight;        //적 가로, 세로
-        int hitWidth, hitHeight;             //폭발 이미지 가로, 세로
-        int x,y;                             //비행기좌표
-        int mx,my;                           //미사일좌표
-        int ex,ey;                           //적좌표
-        int hx,hy;                           //폭발좌표
-        int point=0;                         //점수
-        boolean isFire;                      //총알발사 여부
-        boolean isHit;                       //폭발 여부
-        String tag;
-        Random random=new Random();
-
-        List<Missile> mlist;                 //총알 리스트
-        List<Enemy>elist;                    //적 리스트
         //생성자
         public MyView(Context context) {
             super(context);
@@ -93,7 +95,7 @@ public class GameActivity extends AppCompatActivity {
                         for (int enemy = 0; enemy < mlist.size(); enemy++) {
 
                             Enemy e = elist.get(enemy);  //i번째 적    적을 생성 하게 되면 어레이리스트에 계속 쌓인다.
-                            e.setEx(e.getEy() - 3);  //x좌표 움직임
+                            e.setEx(e.getEx() + 3);  //x좌표 움직임
                             e.setEy(e.getEy() + 3);
 
                             if (e.getEx() > width - enemyWidth) {
