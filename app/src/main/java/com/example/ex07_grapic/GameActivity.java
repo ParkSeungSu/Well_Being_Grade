@@ -59,8 +59,6 @@ public class GameActivity extends AppCompatActivity {
 
     //내부 클래스
     class MyView extends View implements Runnable{
-
-
         //생성자
         public MyView(Context context) {
             super(context);
