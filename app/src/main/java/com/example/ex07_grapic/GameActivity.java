@@ -107,8 +107,8 @@ public class GameActivity extends AppCompatActivity {
                             if (rectG.intersect(rectE)) { //적기와 내가 박았다?
                                 hit.start();
                                 isHit = true;
-                                hx = e.getEx();
-                                hy = e.getEy();//폭발한 x,y좌표 저장
+                                hx = x;
+                                hy = y;//폭발한 x,y좌표 저장
                                 break;//일단 사용자가 박으면 프로그램 자체가 멈추게 함
                             }
 
@@ -146,8 +146,8 @@ public class GameActivity extends AppCompatActivity {
                                     elist.add(enemy);
                                 }
 
-                            hx = ex;
-                            hy = ey;
+                            hx = eCheck.getEx();
+                            hy = eCheck.getEy();
                             //폭발한 x,y좌표 저장
                                 if(mlist.get(i)!=null) {
                                     mlist.remove(i);
