@@ -42,7 +42,7 @@ public class GameActivity extends AppCompatActivity {
     boolean isFire;                      //총알발사 여부
     boolean isHit;                       //폭발 여부
     String tag;
-    Random random=new Random();
+
 
     List<Missile> mlist;                 //총알 리스트
     List<Enemy>elist;                    //적 리스트
@@ -59,6 +59,7 @@ public class GameActivity extends AppCompatActivity {
 
     //내부 클래스
     class MyView extends View implements Runnable{
+        boolean stopped=false;
         //생성자
         public MyView(Context context) {
             super(context);
@@ -81,7 +82,7 @@ public class GameActivity extends AppCompatActivity {
 
         @Override
         public void run() {
-            while (true){
+            while (!stopped){
                 Log.d(tag,"스레드시작");
 
                 //적 좌표
@@ -90,16 +91,21 @@ public class GameActivity extends AppCompatActivity {
                 try {Log.d(tag,"적기 이동시작");
                     if(elist!=null) {
 
+
                         for (int enemy = 0; enemy < elist.size(); enemy++) {
 
                             Enemy e = elist.get(enemy);  //i번째 적    적을 생성 하게 되면 어레이리스트에 계속 쌓인다.
-                            e.setEx(e.getEx() + 3);  //x좌표 움직임
+                            e.setEx(e.getEx()+e.getEnemyGo());
                             e.setEy(e.getEy() + 3);
-
                             if (e.getEx() > width - enemyWidth) {
-                                e.setEx(0);
-                                //x좌표가
+                                    e.changeGo();//enemygo값이 -1을 곱한값이 됨 = 방향전환
+                                    //x좌표가 우측벽에 닿으면
                             }
+                            if (e.getEx()<=0){
+                                    e.changeGo();
+                                    //x좌표가 좌측벽에 닿으면 방향전환
+                            }
+
                             if (e.getEy() > height - enemyHeight) {  //y좌표가 맨 아래로 내려오면 다시 위로
                                 e.setEy(ey);
                             }
@@ -109,7 +115,7 @@ public class GameActivity extends AppCompatActivity {
                                 isHit = true;
                                 hx = x;
                                 hy = y;//폭발한 x,y좌표 저장
-                                break;//일단 사용자가 박으면 프로그램 자체가 멈추게 함
+                                stop();//일단 사용자가 박으면 프로그램 자체가 멈추게 함
                             }
 
 
@@ -142,6 +148,7 @@ public class GameActivity extends AppCompatActivity {
                                 isHit = true;            //폭발 상태로 변경
                                 point += 1;              //점수 증가
                                 for (int j = elist.size(); j <= point; j++) {
+                                    Random random=new Random();
                                     Enemy enemy = new Enemy(random.nextInt(width - enemyWidth) + 1, ey);
                                     elist.add(enemy);
                                 }
@@ -174,6 +181,9 @@ public class GameActivity extends AppCompatActivity {
 
 
         }
+        public void stop(){
+            stopped=true;
+        }
         //화면 사이즈가 변경될 때( 최초 가로, 최초 세로, 전환 가로, 전환 세로)
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -204,6 +214,7 @@ public class GameActivity extends AppCompatActivity {
             //적 초기 좌표
             ey = 0;
             //초기에 적 한마리 생성
+            Random random=new Random();
             Enemy e = new Enemy(random.nextInt(width - enemyWidth)+1,ey);
             elist.add(e);
             Log.d(tag,"사이즈 체인지 끝");
