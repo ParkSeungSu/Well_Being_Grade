@@ -96,7 +96,7 @@ public class GameActivity extends AppCompatActivity {
                             //x좌표가
                         }
                         if (e.getEy() > height-enemyHeight) {  //y좌표가 맨 아래로 내려오면 다시 위로
-                            e.setEy(0);
+                            e.setEy(ey);
                         }
                         Rect rectE = new Rect(e.getEx(), e.getEy(), e.getEx() + enemyWidth, e.getEy() + enemyHeight);
                         if (rectG.intersect(rectE)) { //적기와 내가 박았다?
@@ -195,7 +195,7 @@ public class GameActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onDraw(Canvas canvas) {
+        protected  void onDraw(Canvas canvas) {
             //배경 이미지 출력
             //setBounds(x1,y1,x2,y2) 영역 지정
             backImg.setBounds(0,0,width,height);
