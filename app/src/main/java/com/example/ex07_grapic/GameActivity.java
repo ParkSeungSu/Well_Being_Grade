@@ -90,7 +90,7 @@ public class GameActivity extends AppCompatActivity {
                 try {Log.d(tag,"적기 이동시작");
                     if(elist!=null) {
 
-                        for (int enemy = 0; enemy < mlist.size(); enemy++) {
+                        for (int enemy = 0; enemy < elist.size(); enemy++) {
 
                             Enemy e = elist.get(enemy);  //i번째 적    적을 생성 하게 되면 어레이리스트에 계속 쌓인다.
                             e.setEx(e.getEx() + 3);  //x좌표 움직임
@@ -141,10 +141,11 @@ public class GameActivity extends AppCompatActivity {
                                 hit.start();             //폭발음 플레이
                                 isHit = true;            //폭발 상태로 변경
                                 point += 1;              //점수 증가
-                                for (int j = 0; j < point; j++) {
+                                for (int j = elist.size(); j <= point; j++) {
                                     Enemy enemy = new Enemy(random.nextInt(width - enemyWidth) + 1, ey);
                                     elist.add(enemy);
                                 }
+
                             hx = ex;
                             hy = ey;
                             //폭발한 x,y좌표 저장
