@@ -28,6 +28,7 @@ public class GameActivity extends AppCompatActivity {
 
     MediaPlayer fire;    //발사음
     MediaPlayer hit;     //타격음
+    MediaPlayer bgmusic; //배경음악
 
     int width, height;   //화면 가로,세로
     int gunshipWidth, gunshipHeight;  //사용자 비행기 가로,세로
@@ -72,11 +73,14 @@ public class GameActivity extends AppCompatActivity {
             //sound생성
             fire=MediaPlayer.create(GameActivity.this,R.raw.fire);
             hit=MediaPlayer.create(GameActivity.this,R.raw.hit);
+            bgmusic = MediaPlayer.create(GameActivity.this, R.raw.gamemusic);
             //리스트 생성
             mlist=new ArrayList<>();
             elist=new ArrayList<>();
             //백그라운드 스레드 생성 -> 그러면 run이 돌아간다.
             Thread th = new Thread(this);
+            bgmusic.setLooping(true);
+            bgmusic.start();
             th.start();
         }
 
@@ -89,12 +93,10 @@ public class GameActivity extends AppCompatActivity {
                 //사용자의 사각영역
                 Rect rectG=new Rect(x,y,x+gunshipWidth,y+gunshipHeight);
                 try {Log.d(tag,"적기 이동시작");
-                    if(elist!=null) {
-
-
                         for (int enemy = 0; enemy < elist.size(); enemy++) {
 
-                            Enemy e = elist.get(enemy);  //i번째 적    적을 생성 하게 되면 어레이리스트에 계속 쌓인다.
+                            Enemy e = elist.get(enemy);
+                            //i번째 적    적을 생성 하게 되면 어레이리스트에 계속 쌓인다.
                             e.setEx(e.getEx()+e.getEnemyGo());
                             e.setEy(e.getEy() + 3);
                             if (e.getEx() > width - enemyWidth) {
@@ -105,7 +107,6 @@ public class GameActivity extends AppCompatActivity {
                                     e.changeGo();
                                     //x좌표가 좌측벽에 닿으면 방향전환
                             }
-
                             if (e.getEy() > height - enemyHeight) {  //y좌표가 맨 아래로 내려오면 다시 위로
                                 e.setEy(ey);
                             }
@@ -117,10 +118,7 @@ public class GameActivity extends AppCompatActivity {
                                 hy = y;//폭발한 x,y좌표 저장
                                 stop();//일단 사용자가 박으면 프로그램 자체가 멈추게 함
                             }
-
-
                         }
-                    }
                 }catch (IndexOutOfBoundsException e){
                     e.printStackTrace();
                 }
@@ -147,14 +145,8 @@ public class GameActivity extends AppCompatActivity {
                                 hit.start();             //폭발음 플레이
                                 isHit = true;            //폭발 상태로 변경
                                 point += 1;              //점수 증가
-                                for (int j = elist.size(); j <= point; j++) {
-                                    Random random=new Random();
-                                    Enemy enemy = new Enemy(random.nextInt(width - enemyWidth) + 1, ey);
-                                    elist.add(enemy);
-                                }
-
-                            hx = eCheck.getEx();
-                            hy = eCheck.getEy();
+                                hx = eCheck.getEx();
+                                hy = eCheck.getEy();
                             //폭발한 x,y좌표 저장
                                 if(mlist.get(i)!=null) {
                                     mlist.remove(i);
@@ -183,6 +175,7 @@ public class GameActivity extends AppCompatActivity {
         }
         public void stop(){
             stopped=true;
+            bgmusic.release();
         }
         //화면 사이즈가 변경될 때( 최초 가로, 최초 세로, 전환 가로, 전환 세로)
         @Override
@@ -214,9 +207,11 @@ public class GameActivity extends AppCompatActivity {
             //적 초기 좌표
             ey = 0;
             //초기에 적 한마리 생성
-            Random random=new Random();
-            Enemy e = new Enemy(random.nextInt(width - enemyWidth)+1,ey);
-            elist.add(e);
+            if (elist.size() <= 0) {
+                Random random = new Random();
+                Enemy e = new Enemy(random.nextInt(width - enemyWidth) + 1, ey);
+                elist.add(e);
+            }
             Log.d(tag,"사이즈 체인지 끝");
 
         }
@@ -243,6 +238,17 @@ public class GameActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 isHit = false; //폭발하지 않은 상태로 전환
+            }
+            //적 생성
+            if (elist.size() <= 0) {
+                for (int j = 0; j <= point / 5; j++) {
+                    Random random = new Random();
+                    Enemy enemy = new Enemy(random.nextInt(width - enemyWidth) + 1, ey);
+                    if (j % 2 != 1) {
+                        enemy.changeGo();
+                    }
+                    elist.add(enemy);
+                }//적 기체가 완전히 없어졌을때 다시 점수에 비례해서 그림
             }
             //적 출력
             for(int i=0;i<elist.size();i++){
