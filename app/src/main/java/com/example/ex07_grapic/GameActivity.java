@@ -273,7 +273,7 @@ public class GameActivity extends AppCompatActivity {
 
             //비행기 좌표
             x = (width/2) - (gunshipWidth/2);   //정중앙
-            y = height - 50;
+            y = height - gunshipHeight;
 
             //미사일 초기좌표
             mx = x+20;
@@ -300,7 +300,7 @@ public class GameActivity extends AppCompatActivity {
             backImg.setBounds(0,0,width,height);
             backImg.draw(canvas); // 배경을 캔버스에 출력
             //사용자 비행기 출력
-            gunship.setBounds(x, y - 20, x + gunshipWidth, y + gunshipHeight);
+            gunship.setBounds(x, y, x + gunshipWidth, y + gunshipHeight);
             gunship.draw(canvas);
 
             if(isHit) {      //폭발 상태
