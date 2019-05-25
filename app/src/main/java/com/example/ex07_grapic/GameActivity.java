@@ -278,7 +278,6 @@ public class GameActivity extends AppCompatActivity {
             //미사일 초기좌표
             mx = x+20;
             my = y;
-
             //적 초기 좌표
             ey = 0;
             //초기에 적 한마리 생성
