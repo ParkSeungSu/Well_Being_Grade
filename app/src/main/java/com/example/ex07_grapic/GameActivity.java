@@ -299,7 +299,7 @@ public class GameActivity extends AppCompatActivity {
             backImg.setBounds(0,0,width,height);
             backImg.draw(canvas); // 배경을 캔버스에 출력
             //사용자 비행기 출력
-            gunship.setBounds(x,y,x+gunshipWidth,y+gunshipHeight);
+            gunship.setBounds(x, y - 20, x + gunshipWidth, y + gunshipHeight);
             gunship.draw(canvas);
 
             if(isHit) {      //폭발 상태
