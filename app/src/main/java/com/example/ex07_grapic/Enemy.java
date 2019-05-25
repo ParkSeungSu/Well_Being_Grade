@@ -4,6 +4,7 @@ public class Enemy {
     private int ex;//적 기체 좌표
     private  int ey;
     private int enemyGo=3;
+    private int enemyDown = 3;
     public Enemy(int ex,int ey) {
         this.ex=ex;
         this.ey=ey;
@@ -31,4 +32,17 @@ public class Enemy {
     public int getEnemyGo(){
         return enemyGo;
     }
+
+    public int getEnemyDown() {
+        return enemyDown;
+    }
+
+    public void changeSetDown(int num) {
+        enemyDown += num;
+    }
+
+    public void changeDown() {
+        ++enemyDown;
+    }
 }
+

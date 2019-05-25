@@ -169,7 +169,7 @@ public class GameActivity extends AppCompatActivity {
                             Enemy e = elist.get(enemy);
                             //i번째 적    적을 생성 하게 되면 어레이리스트에 계속 쌓인다.
                             e.setEx(e.getEx()+e.getEnemyGo());
-                            e.setEy(e.getEy() + 3);
+                            e.setEy(e.getEy() + e.getEnemyDown());
                             if (e.getEx() > width - enemyWidth) {
                                     e.changeGo();//enemygo값이 -1을 곱한값이 됨 = 방향전환
                                     //x좌표가 우측벽에 닿으면
@@ -180,6 +180,7 @@ public class GameActivity extends AppCompatActivity {
                             }
                             if (e.getEy() > height - enemyHeight) {  //y좌표가 맨 아래로 내려오면 다시 위로
                                 e.setEy(ey);
+                                e.changeDown();
                             }
                             Rect rectE = new Rect(e.getEx(), e.getEy(), e.getEx() + enemyWidth, e.getEy() + enemyHeight);
                             if (rectG.intersect(rectE)) { //적기와 내가 박았다?
@@ -320,6 +321,9 @@ public class GameActivity extends AppCompatActivity {
                     Enemy enemy = new Enemy(random.nextInt(width - enemyWidth) + 1, ey);
                     if (j % 2 != 1) {
                         enemy.changeGo();
+                    }
+                    if (point != 0 && point % 2 == 0) {
+                        enemy.changeSetDown((point / 2));
                     }
                     elist.add(enemy);
                 }//적 기체가 완전히 없어졌을때 다시 점수에 비례해서 그림
