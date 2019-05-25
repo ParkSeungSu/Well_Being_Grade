@@ -1,6 +1,7 @@
 package com.example.ex07_grapic;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -42,6 +43,7 @@ public class GameActivity extends AppCompatActivity {
     int point=0;                         //점수
     boolean isFire;                      //총알발사 여부
     boolean isHit;                       //폭발 여부
+    boolean gameover;
     String tag;
 
 
@@ -50,12 +52,81 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MyView view = new MyView(this);
-        view.setFocusable(true); //키 이벤트를 받을 수 있도록 설정
-        requestWindowFeature(Window.FEATURE_NO_TITLE); //타이틀 바를 숨김
-        setContentView(view); //xml이 아닌 내부뷰 (커스텀 뷰)로 화면 이용
+        gameover = false;
+        Intent reciver = getIntent();
+        if (reciver.getExtras() != null) {
+            gameover = reciver.getExtras().getBoolean("state");
+        }
+        if (gameover) {
+            GameOverView gameOverView = new GameOverView(this);
+            requestWindowFeature(Window.FEATURE_NO_TITLE); //타이틀 바를 숨김
+            setContentView(gameOverView);
+            gameOverView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent sender = new Intent(GameActivity.this, GameActivity.class);
+                    sender.putExtra("state", false);
+                    startActivity(sender);
+                }
+            });
+        } else {
+            MyView view = new MyView(this);
+            view.setFocusable(true); //키 이벤트를 받을 수 있도록 설정
+            requestWindowFeature(Window.FEATURE_NO_TITLE); //타이틀 바를 숨김
+            setContentView(view);
+
+        }
+        //xml이 아닌 내부뷰 (커스텀 뷰)로 화면 이용
+
     }
 
+    //gameover뷰
+    class GameOverView extends View {
+        Drawable overBg;
+
+        public GameOverView(Context context) {
+            super(context);
+            overBg = getResources().getDrawable(R.drawable.gameover);
+
+        }
+
+        @Override
+        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+            super.onSizeChanged(w, h, oldw, oldh);
+            //화면의 가로,세로 폰을 기준으로 맞춘다.
+            width = getWidth();
+            height = getHeight();
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            overBg.setBounds(0, 0, width, height);
+            overBg.draw(canvas);
+            //점수 출력
+            String strGrad;
+            Paint paint = new Paint();
+            paint.setColor(Color.RED);
+            paint.setTextSize(150);//폰트 사이즈
+            if (point < 100) {
+                strGrad = "F";
+                canvas.drawText(strGrad, width - (width / 4), height / 4, paint);
+            } else if (point >= 100 && point < 150) {
+                strGrad = "D";
+                canvas.drawText(strGrad, width - (width / 4), height / 4, paint);
+            } else if (point >= 150 && point < 200) {
+                strGrad = "C";
+                canvas.drawText(strGrad, width - (width / 4), height / 4, paint);
+            } else if (point >= 200 && point < 250) {
+                strGrad = "B";
+                canvas.drawText(strGrad, width - (width / 4), height / 4, paint);
+            } else if (point >= 250) {
+                strGrad = "A";
+                canvas.drawText(strGrad, width - (width / 4), height / 4, paint);
+            }
+            super.onDraw(canvas);
+        }
+
+    }
 
 
     //내부 클래스
@@ -116,7 +187,7 @@ public class GameActivity extends AppCompatActivity {
                                 isHit = true;
                                 hx = x;
                                 hy = y;//폭발한 x,y좌표 저장
-                                stop();//일단 사용자가 박으면 프로그램 자체가 멈추게 함
+                                stop();//일단 사용자가 박으면 스레드,배경 음악을 멈추게 함
                             }
                         }
                 }catch (IndexOutOfBoundsException e){
@@ -174,8 +245,11 @@ public class GameActivity extends AppCompatActivity {
 
         }
         public void stop(){
-            stopped=true;
             bgmusic.release();
+            Intent sender = new Intent(GameActivity.this, GameActivity.class);
+            sender.putExtra("state", true);
+            startActivity(sender);
+
         }
         //화면 사이즈가 변경될 때( 최초 가로, 최초 세로, 전환 가로, 전환 세로)
         @Override
