@@ -40,7 +40,7 @@ public class GameActivity extends AppCompatActivity {
     int mx,my;                           //미사일좌표
     int ex,ey;                           //적좌표
     int hx,hy;                           //폭발좌표
-    int point=0;                         //점수
+    int point;                         //점수
     boolean isFire;                      //총알발사 여부
     boolean isHit;                       //폭발 여부
     boolean gameover;
@@ -56,6 +56,7 @@ public class GameActivity extends AppCompatActivity {
         Intent reciver = getIntent();
         if (reciver.getExtras() != null) {
             gameover = reciver.getExtras().getBoolean("state");
+            point = reciver.getExtras().getInt("point");
         }
         if (gameover) {
             GameOverView gameOverView = new GameOverView(this);
@@ -66,6 +67,7 @@ public class GameActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     Intent sender = new Intent(GameActivity.this, GameActivity.class);
                     sender.putExtra("state", false);
+                    sender.putExtra("point", 0);
                     startActivity(sender);
                 }
             });
@@ -103,26 +105,26 @@ public class GameActivity extends AppCompatActivity {
             overBg.setBounds(0, 0, width, height);
             overBg.draw(canvas);
             //점수 출력
-            String strGrad;
+            String strGrad = "점수가 ";
             Paint paint = new Paint();
             paint.setColor(Color.RED);
-            paint.setTextSize(150);//폰트 사이즈
-            if (point < 100) {
-                strGrad = "F";
-                canvas.drawText(strGrad, width - (width / 4), height / 4, paint);
-            } else if (point >= 100 && point < 150) {
-                strGrad = "D";
-                canvas.drawText(strGrad, width - (width / 4), height / 4, paint);
-            } else if (point >= 150 && point < 200) {
-                strGrad = "C";
-                canvas.drawText(strGrad, width - (width / 4), height / 4, paint);
-            } else if (point >= 200 && point < 250) {
-                strGrad = "B";
-                canvas.drawText(strGrad, width - (width / 4), height / 4, paint);
-            } else if (point >= 250) {
-                strGrad = "A";
-                canvas.drawText(strGrad, width - (width / 4), height / 4, paint);
+            paint.setTextSize(70);//폰트 사이즈
+            if (point <= 50) {
+                strGrad = point + "인 당신은 F";
             }
+            if (point > 50 && point < 100) {
+                strGrad = point + "인 당신은 D";
+            }
+            if (point >= 100 && point < 150) {
+                strGrad = point + "인 당신은 C";
+            }
+            if (point >= 150 && point < 200) {
+                strGrad = point + "인 당신은 B";
+            }
+            if (point >= 200) {
+                strGrad = " A ";
+            }
+            canvas.drawText(strGrad, width - 2 * (width / 4), height / 4, paint);
             super.onDraw(canvas);
         }
 
@@ -246,9 +248,11 @@ public class GameActivity extends AppCompatActivity {
 
         }
         public void stop(){
+            stopped = true;
             bgmusic.release();
             Intent sender = new Intent(GameActivity.this, GameActivity.class);
             sender.putExtra("state", true);
+            sender.putExtra("point", point);
             startActivity(sender);
 
         }
@@ -324,6 +328,7 @@ public class GameActivity extends AppCompatActivity {
                     if (point != 0 && point % 2 == 0) {
                         enemy.changeSetDown((point / 2));
                     }
+                    enemy.changeSetDown(j);
                     elist.add(enemy);
                 }//적 기체가 완전히 없어졌을때 다시 점수에 비례해서 그림
             }
@@ -346,7 +351,7 @@ public class GameActivity extends AppCompatActivity {
             String str = "POINT : "+ point;
             Paint paint = new Paint();
             paint.setColor(Color.BLACK);
-            paint.setTextSize(40);      //폰트 사이즈
+            paint.setTextSize(60);      //폰트 사이즈
             canvas.drawText(str,width/2,40,paint);
             Log.d(tag,"드로우 끝");
 
