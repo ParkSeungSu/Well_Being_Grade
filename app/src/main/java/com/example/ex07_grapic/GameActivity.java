@@ -287,7 +287,7 @@ public class GameActivity extends AppCompatActivity {
             //초기에 적 한마리 생성
             if (elist.size() <= 0) {
                 Random random = new Random();
-                Enemy e = new Enemy(random.nextInt(width - enemyWidth) + 1, ey);
+                Enemy e = new Enemy(random.nextInt(width - enemyWidth) + 1, ey, random.nextInt(3));
                 elist.add(e);
             }
             Log.d(tag,"사이즈 체인지 끝");
@@ -321,7 +321,7 @@ public class GameActivity extends AppCompatActivity {
             if (elist.size() <= 0) {
                 for (int j = 0; j <= point / 5; j++) {
                     Random random = new Random();
-                    Enemy enemy = new Enemy(random.nextInt(width - enemyWidth) + 1, ey);
+                    Enemy enemy = new Enemy(random.nextInt(width - enemyWidth) + 1, ey, random.nextInt(3));
                     if (j % 2 != 1) {
                         enemy.changeGo();
                     }
@@ -335,8 +335,20 @@ public class GameActivity extends AppCompatActivity {
             //적 출력
             for(int i=0;i<elist.size();i++){
                 Enemy e=elist.get(i);
-                enemy.setBounds(e.getEx(), e.getEy(), e.getEx() + enemyWidth, e.getEy() + enemyHeight);
-                enemy.draw(canvas);
+                Drawable tenemy = getResources().getDrawable(R.drawable.enemy);
+                switch (e.geteType()) {
+                    case 0:
+                        tenemy = getResources().getDrawable(R.drawable.enemy);
+                        break;
+                    case 1:
+                        tenemy = getResources().getDrawable(R.drawable.enemy2);
+                        break;
+                    case 2:
+                        tenemy = getResources().getDrawable(R.drawable.enemy3);
+                        break;
+                }
+                tenemy.setBounds(e.getEx(), e.getEy(), e.getEx() + enemyWidth, e.getEy() + enemyHeight);
+                tenemy.draw(canvas);
             }
             //총알 출력
 

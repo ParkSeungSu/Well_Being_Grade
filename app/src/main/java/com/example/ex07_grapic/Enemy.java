@@ -1,13 +1,22 @@
 package com.example.ex07_grapic;
 
+
 public class Enemy {
     private int ex;//적 기체 좌표
     private  int ey;
     private int enemyGo=3;
     private int enemyDown = 3;
-    public Enemy(int ex,int ey) {
+    private int eType;
+
+    public Enemy(int ex, int ey, int etype) {
         this.ex=ex;
         this.ey=ey;
+        this.eType = etype;
+    }
+
+    public Enemy(int ex, int ey) {
+        this.ex = ex;
+        this.ey = ey;
     }
 
     public int getEx() {
@@ -43,6 +52,10 @@ public class Enemy {
 
     public void changeDown() {
         ++enemyDown;
+    }
+
+    public int geteType() {
+        return eType;
     }
 }
 
