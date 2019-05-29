@@ -49,6 +49,7 @@ public class GameActivity extends AppCompatActivity {
     boolean isFire;                      //총알발사 여부
     boolean isHit;                       //폭발 여부
     boolean gameover;
+    boolean maker = false;
     String tag;
 
 
@@ -291,6 +292,7 @@ public class GameActivity extends AppCompatActivity {
             Random random = new Random();
             Item item = new Item(random.nextInt(width - itemWidth), 0, random.nextInt(2));
             itemList.add(item);
+            maker = false;
         }
         public void stop(){
             stopped = true;
@@ -399,8 +401,12 @@ public class GameActivity extends AppCompatActivity {
                 tenemy.setBounds(e.getEx(), e.getEy(), e.getEx() + enemyWidth, e.getEy() + enemyHeight);
                 tenemy.draw(canvas);
                 if (e.geteState() >= 3) {
-                    itemMake();///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    e.reseteState();
+                    maker = true;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 }
+            }
+            if (maker) {
+                itemMake();
             }
             try {
                 for (int i = 0; i <= itemList.size(); i++) {
@@ -438,9 +444,9 @@ public class GameActivity extends AppCompatActivity {
             canvas.drawText(str,width/2,40,paint);
             canvas.drawText(mcount, 0, 40, paint);
             Log.d(tag,"드로우 끝");
+
             if (point > 0 && point % 4 == 0) {
-                itemMake();
-                return;
+                maker = true;
             }
             super.onDraw(canvas);
         }

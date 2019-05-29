@@ -66,5 +66,9 @@ public class Enemy {
     public void seteState() {
         eState++;
     }
+
+    public void reseteState() {
+        eState = 0;
+    }
 }
 
