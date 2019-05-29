@@ -7,6 +7,10 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -19,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class GameActivity extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity implements SensorEventListener {
     Drawable backImg;    //배경
     Drawable gunship;    //사용자 비행기 이미지
     Drawable missile;    //총알 이미지
@@ -33,7 +37,7 @@ public class GameActivity extends AppCompatActivity {
     MediaPlayer bgmusic; //배경음악
     MediaPlayer endsound;//오버 사운드
 
-
+    int speed = 0;
     int bulletcount = 5;
     int width, height;   //화면 가로,세로
     int gunshipWidth, gunshipHeight;  //사용자 비행기 가로,세로
@@ -51,16 +55,20 @@ public class GameActivity extends AppCompatActivity {
     boolean gameover;
     boolean maker = false;
     String tag;
-
-
+    int gyroY;                          //y축 기준 기울기(회전)
+    private SensorManager sensorManager;//센서메니저
+    private Sensor mGyroscope;          //센서값 읽어오기 자이로(기울기)
     List<Missile> mlist;                 //총알 리스트
     List<Enemy>elist;                    //적 리스트
     List<Item> itemList;                 //아이템 리스트
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         gameover = false;
         Intent reciver = getIntent();
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);  //센서 메니저 얻기
+        mGyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE); //자이로스코프 (회전)센서
         if (reciver.getExtras() != null) {
             gameover = reciver.getExtras().getBoolean("state");
             point = reciver.getExtras().getInt("point");
@@ -91,6 +99,42 @@ public class GameActivity extends AppCompatActivity {
         //xml이 아닌 내부뷰 (커스텀 뷰)로 화면 이용
 
     }
+
+    //센서값 얻어오기
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        Sensor sensor = event.sensor;
+        if (sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+            gyroY = Math.round(event.values[1] * 1000);
+            if (gyroY > 0) {
+                x = x + 5 + speed;
+                x = Math.min(width - gunshipWidth, x);
+            }
+            if (gyroY <= 0) {
+                x = x - 5 - speed;
+                x = Math.max(0, x);   //큰값
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
+    //리스너 등록
+    protected void onResume() {
+        super.onResume();
+        sensorManager.registerListener(this, mGyroscope, SensorManager.SENSOR_DELAY_GAME);
+
+    }
+
+    //리스너 해제
+    protected void onPause() {
+        super.onPause();
+        sensorManager.unregisterListener(this);
+    }
+
 
     //gameover뷰
     class GameOverView extends View {
@@ -263,9 +307,9 @@ public class GameActivity extends AppCompatActivity {
                             switch (itemmov.getState()) {
                                 case 0:
                                     bulletcount = 15;
-                                    itemList.remove(p);
                                     break;
                                 case 1:
+                                    speed++;
                                     //이속 증가~~~~~~추가예정~~~~
                                     break;
                             }
@@ -455,14 +499,6 @@ public class GameActivity extends AppCompatActivity {
         @Override
         public boolean onTouchEvent(MotionEvent event) {
             Log.d(tag,"터치");
-            if(event.getX()<(width/2)){
-                x-=20;
-                x=Math.max(20,x);   //큰값
-            }
-            else if(event.getX()>(width/2)) {
-                x+=20;
-                x=Math.min(width-20,x);
-            }
             if (bulletcount > 0) {
                 isFire = true;  //발사로 전환
                 fire.start();   //발사 소리 출력
@@ -474,5 +510,6 @@ public class GameActivity extends AppCompatActivity {
             return super.onTouchEvent(event);
         }
     }
+
 }
 //그냥 커밋 잘되나 테스트
