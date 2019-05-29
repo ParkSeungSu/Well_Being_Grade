@@ -25,17 +25,22 @@ public class GameActivity extends AppCompatActivity {
     Drawable missile;    //총알 이미지
     Drawable enemy;      //적 이미지
     Drawable explousure; //폭발이미지
+    Drawable item;       //아이템 이미지
     // SoundPool 사운드(1m), MediaPlayer 사운드(1m이상),동영상
 
     MediaPlayer fire;    //발사음
     MediaPlayer hit;     //타격음
     MediaPlayer bgmusic; //배경음악
+    MediaPlayer endsound;//오버 사운드
 
+
+    int bulletcount = 5;
     int width, height;   //화면 가로,세로
     int gunshipWidth, gunshipHeight;  //사용자 비행기 가로,세로
     int missileWidth, missileHeight;     //미사일 가로,세로
     int enemyWidth, enemyHeight;        //적 가로, 세로
     int hitWidth, hitHeight;             //폭발 이미지 가로, 세로
+    int itemWidth, itemHeight;           //아이템 이미지 가로,세로
     int x,y;                             //비행기좌표
     int mx,my;                           //미사일좌표
     int ex,ey;                           //적좌표
@@ -49,6 +54,7 @@ public class GameActivity extends AppCompatActivity {
 
     List<Missile> mlist;                 //총알 리스트
     List<Enemy>elist;                    //적 리스트
+    List<Item> itemList;                 //아이템 리스트
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,12 +68,15 @@ public class GameActivity extends AppCompatActivity {
             GameOverView gameOverView = new GameOverView(this);
             requestWindowFeature(Window.FEATURE_NO_TITLE); //타이틀 바를 숨김
             setContentView(gameOverView);
+            endsound = MediaPlayer.create(GameActivity.this, R.raw.endsound);
+            endsound.start();                   //r게임 오버시 출력사운드
             gameOverView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent sender = new Intent(GameActivity.this, GameActivity.class);
                     sender.putExtra("state", false);
                     sender.putExtra("point", 0);
+                    endsound.release();           //게임 화면으로 돌아가면 중지
                     startActivity(sender);
                 }
             });
@@ -143,6 +152,7 @@ public class GameActivity extends AppCompatActivity {
             missile=getResources().getDrawable(R.drawable.missile);
             enemy=getResources().getDrawable(R.drawable.enemy);
             explousure=getResources().getDrawable(R.drawable.hit);
+            item = getResources().getDrawable(R.drawable.mitem);
             //sound생성
             fire=MediaPlayer.create(GameActivity.this,R.raw.fire);
             hit=MediaPlayer.create(GameActivity.this,R.raw.hit);
@@ -150,6 +160,7 @@ public class GameActivity extends AppCompatActivity {
             //리스트 생성
             mlist=new ArrayList<>();
             elist=new ArrayList<>();
+            itemList = new ArrayList<>();
             //백그라운드 스레드 생성 -> 그러면 run이 돌아간다.
             Thread th = new Thread(this);
             bgmusic.setLooping(true);
@@ -161,44 +172,46 @@ public class GameActivity extends AppCompatActivity {
         public void run() {
             while (!stopped){
                 Log.d(tag,"스레드시작");
-
                 //적 좌표
                 //사용자의 사각영역
                 Rect rectG=new Rect(x,y,x+gunshipWidth,y+gunshipHeight);
                 try {Log.d(tag,"적기 이동시작");
-                        for (int enemy = 0; enemy < elist.size(); enemy++) {
+                    for (int enemy = 0; enemy < elist.size(); enemy++) {
 
-                            Enemy e = elist.get(enemy);
-                            //i번째 적    적을 생성 하게 되면 어레이리스트에 계속 쌓인다.
-                            e.setEx(e.getEx()+e.getEnemyGo());
-                            e.setEy(e.getEy() + e.getEnemyDown());
-                            if (e.getEx() > width - enemyWidth) {
-                                    e.changeGo();//enemygo값이 -1을 곱한값이 됨 = 방향전환
-                                    //x좌표가 우측벽에 닿으면
-                            }
-                            if (e.getEx()<=0){
-                                    e.changeGo();
-                                    //x좌표가 좌측벽에 닿으면 방향전환
-                            }
-                            if (e.getEy() > height - enemyHeight) {  //y좌표가 맨 아래로 내려오면 다시 위로
-                                e.setEy(ey);
-                                e.changeDown();
-                            }
-                            Rect rectE = new Rect(e.getEx(), e.getEy(), e.getEx() + enemyWidth, e.getEy() + enemyHeight);
-                            if (rectG.intersect(rectE)) { //적기와 내가 박았다?
-                                hit.start();
-                                isHit = true;
-                                hx = x;
-                                hy = y;//폭발한 x,y좌표 저장
-                                stop();//일단 사용자가 박으면 스레드,배경 음악을 멈추게 함
-                            }
+                        Enemy e = elist.get(enemy);
+
+                        //i번째 적    적을 생성 하게 되면 어레이리스트에 계속 쌓인다.
+                        e.setEx(e.getEx()+e.getEnemyGo());
+                        e.setEy(e.getEy() + e.getEnemyDown());
+                        if (e.getEx() > width - enemyWidth) {
+                            e.changeGo();//enemygo값이 -1을 곱한값이 됨 = 방향전환
+                            //x좌표가 우측벽에 닿으면
                         }
+                        if (e.getEx()<=0){
+                            e.changeGo();
+                            //x좌표가 좌측벽에 닿으면 방향전환
+                        }
+                        if (e.getEy() > height - enemyHeight) {  //y좌표가 맨 아래로 내려오면 다시 위로
+                            e.setEy(ey);
+                            e.changeDown();
+                            e.seteState();                       //적의 횟수를 기록
+                        }
+                        Rect rectE = new Rect(e.getEx(), e.getEy(), e.getEx() + enemyWidth, e.getEy() + enemyHeight);
+                        if (rectG.intersect(rectE)) { //적기와 내가 박았다?
+                            hit.start();
+                            isHit = true;
+                            hx = x;
+                            hy = y;//폭발한 x,y좌표 저장
+                            stop();//일단 사용자가 박으면 스레드,배경 음악을 멈추게 함
+                        }
+
+                    }
                 }catch (IndexOutOfBoundsException e){
                     e.printStackTrace();
                 }
                 Log.d(tag,"미사일 이동");
                 //미사일 좌표
-                for (int i = 0;i < mlist.size();i++){
+                for (int i = 0; i < mlist.size(); i++){
                     Missile m= mlist.get(i);  //i번째 총알    총알을 발사하게 되면 어레이리스트에 계속 쌓인다.
                     m.setMy(m.getMy()-10);  //y좌표 감소 처리
                     if (m.getMy()<0){
@@ -211,30 +224,56 @@ public class GameActivity extends AppCompatActivity {
                     //총알의 사각영역
                     Rect rectM=new Rect(m.getMx(),m.getMy(),m.getMx()+missileWidth,m.getMy()+missileHeight);
                     try {
-                        for (int e=0;e<elist.size();e++){
+                        for (int e=0; e<elist.size(); e++){
                             Enemy eCheck = elist.get(e);
                             Rect rectE = new Rect(eCheck.getEx(), eCheck.getEy(), eCheck.getEx() + enemyWidth, eCheck.getEy() + enemyHeight);
-                        //겹치는 걸로 충돌 판정
+                            //겹치는 걸로 충돌 판정
                             if (rectE.intersect(rectM)) {  //겹쳐졌다?=>충돌
                                 hit.start();             //폭발음 플레이
                                 isHit = true;            //폭발 상태로 변경
                                 point += 1;              //점수 증가
                                 hx = eCheck.getEx();
                                 hy = eCheck.getEy();
-                            //폭발한 x,y좌표 저장
+                                //폭발한 x,y좌표 저장
                                 if(mlist.get(i)!=null) {
                                     mlist.remove(i);
                                 }
                                 //총알 리스트에서 총알을 제거
                                 if(elist.get(e)!=null){
-                                elist.remove(e);}
+                                    elist.remove(e);}
 
+                            }
                         }
-                    }
                     }catch (IndexOutOfBoundsException e){
                         e.printStackTrace();
                     }
 
+                }
+                //아이템 이동
+                try {
+                    for (int p = 0; p <= itemList.size(); p++) {
+                        Item itemmov = itemList.get(p);
+                        itemmov.setIy(itemmov.getIy() + 3);
+                        if (itemmov.getIy() > height) {
+                            itemList.remove(p);
+                        }
+                        Rect itemrect = new Rect(itemmov.getIx(), itemmov.getIy(), itemmov.getIx() + itemWidth, itemmov.getIy() + itemHeight);
+                        if (itemrect.intersect(rectG)) {
+                            switch (itemmov.getState()) {
+                                case 0:
+                                    bulletcount = 15;
+                                    itemList.remove(p);
+                                    break;
+                                case 1:
+                                    //이속 증가~~~~~~추가예정~~~~
+                                    break;
+                            }
+                            itemList.remove(p);
+                        }
+
+                    }
+                } catch (IndexOutOfBoundsException e) {
+                    e.printStackTrace();
                 }
                 try {
                     Thread.sleep(30);               //잠깐 화면을 멈추고
@@ -246,6 +285,12 @@ public class GameActivity extends AppCompatActivity {
             }
 
 
+        }
+
+        public void itemMake() {
+            Random random = new Random();
+            Item item = new Item(random.nextInt(width - itemWidth), 0, random.nextInt(2));
+            itemList.add(item);
         }
         public void stop(){
             stopped = true;
@@ -274,6 +319,8 @@ public class GameActivity extends AppCompatActivity {
             enemyHeight=enemy.getIntrinsicHeight();
             hitWidth=explousure.getIntrinsicWidth();
             hitHeight=explousure.getIntrinsicHeight();
+            itemWidth = item.getIntrinsicWidth();
+            itemHeight = item.getIntrinsicHeight();
 
             //비행기 좌표
             x = (width/2) - (gunshipWidth/2);   //정중앙
@@ -297,7 +344,9 @@ public class GameActivity extends AppCompatActivity {
         @Override
         protected  void onDraw(Canvas canvas) {
             Log.d(tag,"드로우 시작");
-
+            if (bulletcount <= 0) {
+                bulletcount = 0;
+            }
             //배경 이미지 출력
             //setBounds(x1,y1,x2,y2) 영역 지정
             backImg.setBounds(0,0,width,height);
@@ -311,7 +360,7 @@ public class GameActivity extends AppCompatActivity {
                 explousure.setBounds(hx - 20, hy - 20, hx + hitWidth - 20, hy + hitHeight - 20);
                 explousure.draw(canvas);
                 try {
-                    Thread.sleep(200);
+                    Thread.sleep(100);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -333,7 +382,7 @@ public class GameActivity extends AppCompatActivity {
                 }//적 기체가 완전히 없어졌을때 다시 점수에 비례해서 그림
             }
             //적 출력
-            for(int i=0;i<elist.size();i++){
+            for(int i=0; i<elist.size(); i++){
                 Enemy e=elist.get(i);
                 Drawable tenemy = getResources().getDrawable(R.drawable.enemy);
                 switch (e.geteType()) {
@@ -349,6 +398,27 @@ public class GameActivity extends AppCompatActivity {
                 }
                 tenemy.setBounds(e.getEx(), e.getEy(), e.getEx() + enemyWidth, e.getEy() + enemyHeight);
                 tenemy.draw(canvas);
+                if (e.geteState() >= 3) {
+                    itemMake();///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                }
+            }
+            try {
+                for (int i = 0; i <= itemList.size(); i++) {
+                    Item ie = itemList.get(i);
+                    switch (ie.getState()) {
+                        case 0:
+                            item = getResources().getDrawable(R.drawable.mitem);
+                            break;
+                        case 1:
+                            item = getResources().getDrawable(R.drawable.speed);
+                            break;
+                    }
+                    item.setBounds(ie.getIx(), ie.getIy(), ie.getIx() + itemWidth, ie.getIy() + itemHeight);
+                    item.draw(canvas);
+                    postInvalidate();
+                }
+            } catch (IndexOutOfBoundsException e) {
+                e.printStackTrace();
             }
             //총알 출력
 
@@ -361,12 +431,17 @@ public class GameActivity extends AppCompatActivity {
 
             //점수 출력
             String str = "POINT : "+ point;
+            String mcount = "BULLET : " + bulletcount;
             Paint paint = new Paint();
             paint.setColor(Color.BLACK);
             paint.setTextSize(60);      //폰트 사이즈
             canvas.drawText(str,width/2,40,paint);
+            canvas.drawText(mcount, 0, 40, paint);
             Log.d(tag,"드로우 끝");
-
+            if (point > 0 && point % 4 == 0) {
+                itemMake();
+                return;
+            }
             super.onDraw(canvas);
         }
         //키 이벤트 처리
@@ -374,12 +449,6 @@ public class GameActivity extends AppCompatActivity {
         @Override
         public boolean onTouchEvent(MotionEvent event) {
             Log.d(tag,"터치");
-
-            isFire = true;  //발사로 전환
-            fire.start();   //발사 소리 출력
-            Missile ms = new Missile(x+gunshipWidth/2,y);
-            mlist.add(ms);
-
             if(event.getX()<(width/2)){
                 x-=20;
                 x=Math.max(20,x);   //큰값
@@ -387,6 +456,13 @@ public class GameActivity extends AppCompatActivity {
             else if(event.getX()>(width/2)) {
                 x+=20;
                 x=Math.min(width-20,x);
+            }
+            if (bulletcount > 0) {
+                isFire = true;  //발사로 전환
+                fire.start();   //발사 소리 출력
+                Missile ms = new Missile(x + gunshipWidth / 2, y);
+                bulletcount -= 1;
+                mlist.add(ms);
             }
             postInvalidate();
             return super.onTouchEvent(event);

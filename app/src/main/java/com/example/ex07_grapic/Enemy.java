@@ -7,6 +7,7 @@ public class Enemy {
     private int enemyGo=3;
     private int enemyDown = 3;
     private int eType;
+    private int eState = 0;
 
     public Enemy(int ex, int ey, int etype) {
         this.ex=ex;
@@ -56,6 +57,14 @@ public class Enemy {
 
     public int geteType() {
         return eType;
+    }
+
+    public int geteState() {
+        return eState;
+    }
+
+    public void seteState() {
+        eState++;
     }
 }
 
