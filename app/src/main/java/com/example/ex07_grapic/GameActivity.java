@@ -47,7 +47,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     int itemWidth, itemHeight;           //아이템 이미지 가로,세로
     int x,y;                             //비행기좌표
     int mx,my;                           //미사일좌표
-    int ex,ey;                           //적좌표
+    int ey;                           //적좌표
     int hx,hy;                           //폭발좌표
     int point;                         //점수
     boolean isFire;                      //총알발사 여부
@@ -56,7 +56,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     boolean maker = false;              //아이템 생성 함수 결정자
     boolean intomaker = false;            //점수에 따른 아이템 생성 여부 결정자
     String tag;
-    int gyroY;                          //y축 기준 기울기(회전)
     private SensorManager sensorManager;//센서메니저
     private Sensor gravitySensor;          //센서값 읽어오기 자이로(기울기)
     List<Missile> mlist;                 //총알 리스트
@@ -185,8 +184,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         }
 
     }
-
-
     //내부 클래스
     class MyView extends View implements Runnable{
         boolean stopped=false;
@@ -256,7 +253,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 }catch (IndexOutOfBoundsException e){
                     e.printStackTrace();
                 }
-                Log.d(tag,"미사일 이동");
                 //미사일 좌표
                 for (int i = 0; i < mlist.size(); i++){
                     Missile m= mlist.get(i);  //i번째 총알    총알을 발사하게 되면 어레이리스트에 계속 쌓인다.
@@ -265,9 +261,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                         mlist.remove(i);
                         //y좌표가 0보다 작으면 리스트에서 제거(총알이 맨 위에까지 올라가면)
                     }
-
                     //충돌여부 판정
-
                     //총알의 사각영역
                     Rect rectM=new Rect(m.getMx(),m.getMy(),m.getMx()+missileWidth,m.getMy()+missileHeight);
                     try {
@@ -289,13 +283,11 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                                 //총알 리스트에서 총알을 제거
                                 if(elist.get(e)!=null){
                                     elist.remove(e);}
-
                             }
                         }
                     }catch (IndexOutOfBoundsException e){
                         e.printStackTrace();
                     }
-
                 }
                 //아이템 이동
                 try {
@@ -324,12 +316,12 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                     e.printStackTrace();
                 }
                 try {
-                    Thread.sleep(30);               //잠깐 화면을 멈추고
+                    Thread.sleep(15);               //잠깐 화면을 멈추고
                 }catch (Exception e){
                     e.printStackTrace();
                 }
                 postInvalidate();
-                Log.d(tag,"갱신");//화면 갱신 요청 => onDraw()가 호출됨 그림을 다시 새로 스아악 그린다.
+                //화면 갱신 요청 => onDraw()가 호출됨 그림을 다시 새로 스아악 그린다.
             }
 
 
@@ -355,7 +347,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             super.onSizeChanged(w, h, oldw, oldh);
-            Log.d(tag,"사이즈 체인지 시작");
             //화면의 가로,세로 폰을 기준으로 맞춘다.
             width=getWidth();
             height=getHeight();
@@ -387,8 +378,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 Enemy e = new Enemy(random.nextInt(width - enemyWidth) + 1, ey, random.nextInt(3));
                 elist.add(e);
             }
-            Log.d(tag,"사이즈 체인지 끝");
-
         }
 
         @Override
@@ -469,7 +458,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                     }
                     item.setBounds(ie.getIx(), ie.getIy(), ie.getIx() + itemWidth, ie.getIy() + itemHeight);
                     item.draw(canvas);
-                    postInvalidate();
                 }
             } catch (IndexOutOfBoundsException e) {
                 e.printStackTrace();
