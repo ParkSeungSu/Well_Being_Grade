@@ -58,7 +58,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     String tag;
     int gyroY;                          //y축 기준 기울기(회전)
     private SensorManager sensorManager;//센서메니저
-    private Sensor mGyroscope;          //센서값 읽어오기 자이로(기울기)
+    private Sensor gravitySensor;          //센서값 읽어오기 자이로(기울기)
     List<Missile> mlist;                 //총알 리스트
     List<Enemy>elist;                    //적 리스트
     List<Item> itemList;                 //아이템 리스트
@@ -69,7 +69,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         gameover = false;
         Intent reciver = getIntent();
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);  //센서 메니저 얻기
-        mGyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE); //자이로스코프 (회전)센서
+        gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY); //그레비티 (회전)센서
         if (reciver.getExtras() != null) {
             gameover = reciver.getExtras().getBoolean("state");
             point = reciver.getExtras().getInt("point");
@@ -106,13 +106,13 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent event) {
         Sensor sensor = event.sensor;
-        if (sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-            gyroY = Math.round(event.values[1] * 1000);
-            if (gyroY > 0) {
+        if (sensor == gravitySensor) {
+            int xaxis = (int) event.values[0];
+            if (xaxis < 0) {
                 x = x + 5 + speed;
                 x = Math.min(width - gunshipWidth, x);
             }
-            if (gyroY <= 0) {
+            if (xaxis > 0) {
                 x = x - 5 - speed;
                 x = Math.max(0, x);   //큰값
             }
@@ -127,7 +127,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     //리스너 등록
     protected void onResume() {
         super.onResume();
-        sensorManager.registerListener(this, mGyroscope, SensorManager.SENSOR_DELAY_GAME);
+        sensorManager.registerListener(this, gravitySensor, SensorManager.SENSOR_DELAY_GAME);
 
     }
 
