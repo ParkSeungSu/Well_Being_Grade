@@ -53,7 +53,8 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     boolean isFire;                      //총알발사 여부
     boolean isHit;                       //폭발 여부
     boolean gameover;
-    boolean maker = false;
+    boolean maker = false;              //아이템 생성 함수 결정자
+    boolean intomaker = false;            //점수에 따른 아이템 생성 여부 결정자
     String tag;
     int gyroY;                          //y축 기준 기울기(회전)
     private SensorManager sensorManager;//센서메니저
@@ -87,6 +88,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                     sender.putExtra("point", 0);
                     endsound.release();           //게임 화면으로 돌아가면 중지
                     startActivity(sender);
+                    finish();
                 }
             });
         } else {
@@ -276,7 +278,8 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                             if (rectE.intersect(rectM)) {  //겹쳐졌다?=>충돌
                                 hit.start();             //폭발음 플레이
                                 isHit = true;            //폭발 상태로 변경
-                                point += 1;              //점수 증가
+                                point += 1;             //점수 증가
+                                intomaker = true;
                                 hx = eCheck.getEx();
                                 hy = eCheck.getEy();
                                 //폭발한 x,y좌표 저장
@@ -345,6 +348,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             sender.putExtra("state", true);
             sender.putExtra("point", point);
             startActivity(sender);
+            finish();
 
         }
         //화면 사이즈가 변경될 때( 최초 가로, 최초 세로, 전환 가로, 전환 세로)
@@ -490,7 +494,10 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             Log.d(tag,"드로우 끝");
 
             if (point > 0 && point % 4 == 0) {
-                maker = true;
+                if (intomaker) {
+                    maker = true;
+                    intomaker = false;
+                }
             }
             super.onDraw(canvas);
         }
