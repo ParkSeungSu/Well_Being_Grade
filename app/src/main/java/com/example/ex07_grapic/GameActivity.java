@@ -340,7 +340,8 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             sender.putExtra("state", true);
             sender.putExtra("point", point);
             startActivity(sender);
-            finish();
+            overridePendingTransition(0, 0);                //게임오버 화면 전환 애니메이션 없애기
+            finish();                                                           //현재 엑티비티 종료
 
         }
         //화면 사이즈가 변경될 때( 최초 가로, 최초 세로, 전환 가로, 전환 세로)
