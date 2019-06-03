@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -302,9 +303,11 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                             switch (itemmov.getState()) {
                                 case 0:
                                     bulletcount = 15;
+                                    Toast.makeText(GameActivity.this, "총알 충전!", Toast.LENGTH_SHORT).show();
                                     break;
                                 case 1:
                                     speed++;
+                                    Toast.makeText(GameActivity.this, "이동 속도 증가!", Toast.LENGTH_SHORT).show();
                                     //이속 증가~~~~~~추가예정~~~~
                                     break;
                             }

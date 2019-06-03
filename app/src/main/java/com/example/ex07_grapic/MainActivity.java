@@ -9,7 +9,8 @@ import android.view.Window;
 import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
-    MediaPlayer mainMusic;
+    private MediaPlayer mainMusic;
+    private Button Gstart;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -17,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mainMusic = MediaPlayer.create(MainActivity.this, R.raw.mainmusic);
         mainMusic.start();
-        Button Gstart = findViewById(R.id.start);
+        Gstart = findViewById(R.id.start);
         Gstart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
