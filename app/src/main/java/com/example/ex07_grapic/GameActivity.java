@@ -28,6 +28,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     Drawable backImg;    //배경
     Drawable gunship;    //사용자 비행기 이미지
     Drawable missile;    //총알 이미지
+    Drawable missile2;   //적 총알 이미지
     Drawable enemy;      //적 이미지
     Drawable explousure; //폭발이미지
     Drawable item;       //아이템 이미지
@@ -47,6 +48,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     int hitWidth, hitHeight;             //폭발 이미지 가로, 세로
     int itemWidth, itemHeight;           //아이템 이미지 가로,세로
     int x,y;                             //비행기좌표
+    int mx2, my2;                       // 적 미사일 좌표
     int mx,my;                           //미사일좌표
     int ey;                           //적좌표
     int hx,hy;                           //폭발좌표
@@ -60,6 +62,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager sensorManager;//센서메니저
     private Sensor gravitySensor;          //센서값 읽어오기 자이로(기울기)
     List<Missile> mlist;                 //총알 리스트
+    List<Missile2> mlist2;              // 적 총알 리스트
     List<Enemy>elist;                    //적 리스트
     List<Item> itemList;                 //아이템 리스트
 
@@ -199,6 +202,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             backImg=getResources().getDrawable(R.drawable.back0);
             gunship=getResources().getDrawable(R.drawable.gunship);
             missile=getResources().getDrawable(R.drawable.missile);
+            missile2 = getResources().getDrawable(R.drawable.missile2);
             enemy=getResources().getDrawable(R.drawable.enemy);
             explousure=getResources().getDrawable(R.drawable.hit);
             item = getResources().getDrawable(R.drawable.mitem);
@@ -208,6 +212,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             bgmusic = MediaPlayer.create(GameActivity.this, R.raw.gamemusic);
             //리스트 생성
             mlist=new ArrayList<>();
+            mlist2 = new ArrayList<>();
             elist=new ArrayList<>();
             itemList = new ArrayList<>();
             //백그라운드 스레드 생성 -> 그러면 run이 돌아간다.
@@ -294,6 +299,36 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                         e.printStackTrace();
                     }
                 }
+                for (int k = 0; k < mlist2.size(); k++) {    //                                                        ## 수정된 부분 (301~324라인까지)
+                    Missile2 m2 = mlist2.get(k);  //i번째 총알 적이 총알을 발사하게 되면 어레이리스트에 계속 쌓인다.
+                    m2.setMy(m2.getMy() + 10);  //y좌표 증가 처리
+                    if (m2.getMy() > height) {
+                        mlist2.remove(k);
+                        //y좌표가 화면보다 크면 리스트에서 제거(총알이 맨 아래까지 내려가면)
+                    }
+                    //충돌여부 판정
+                    //총알의 사각영역
+                    Rect rectM2 = new Rect(m2.getMx(), m2.getMy(), m2.getMx() + missileWidth, m2.getMy() + missileHeight);
+                    try {
+                        Rect rectU = new Rect(x, y, x + gunshipWidth, y + gunshipHeight);
+                        //겹치는 걸로 충돌 판정
+                        if (rectU.intersect(rectM2)) {  //겹쳐졌다?=>충돌
+                            hit.start();             //폭발음 플레이
+                            isHit = true;            //폭발 상태로 변경
+                            intomaker = true;
+                            hx = x;
+                            hy = y;
+                            //폭발한 x,y좌표 저장
+                            if (mlist2.get(k) != null) {
+                                mlist2.removeAll(mlist2);
+                            }
+                            stop();
+                        }
+                    } catch (IndexOutOfBoundsException e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 //아이템 이동
                 try {
                     for (int p = 0; p <= itemList.size(); p++) {
@@ -388,6 +423,11 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 Random random = new Random();
                 Enemy e = new Enemy(random.nextInt(width - enemyWidth) + 1, ey, random.nextInt(3));
                 elist.add(e);
+                mx2 = e.getEx() + 20;   //                                                        ## 수정된 부분 (417~421 라인까지)
+                my2 = ey;
+                Missile2 m2 = new Missile2(e.getEx() + 20, ey);
+                mlist2.add(m2);
+
             }
         }
 
@@ -418,9 +458,11 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             }
             //적 생성
             if (elist.size() <= 0) {
-                for (int j = 0; j <= point / 5; j++) {
+                for (int j = 0; j <= point / 2; j++) {
                     Random random = new Random();
                     Enemy enemy = new Enemy(random.nextInt(width - enemyWidth) + 1, ey, random.nextInt(3));
+                    Missile2 m2 = new Missile2(enemy.getEx() + 20, ey);
+                    mlist2.add(m2);
                     if (j % 2 != 1) {
                         enemy.changeGo();
                     }
@@ -480,6 +522,13 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 missile.setBounds(m.getMx(),m.getMy(),m.getMx()+missileWidth,m.getMy()+missileHeight); //총알 이미지 출력 범위
                 missile.draw(canvas);      // i번째 총알 츨력
             }
+            //적총알
+            for (int k = 0; k < mlist2.size(); k++) {      //                                     ## 수정된 부분  (522~526 라인까지)
+                Missile2 m2 = mlist2.get(k);      //k번쨰 총알
+                missile2.setBounds(m2.getMx(), m2.getMy(), m2.getMx() + missileWidth, m2.getMy() + missileHeight); //총알 이미지 출력 범위
+                missile2.draw(canvas);      // i번째 총알 츨력
+            }
+
 
 
             //점수 출력
@@ -492,7 +541,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             canvas.drawText(mcount, 0, 40, paint);
             Log.d(tag,"드로우 끝");
 
-            if (point > 0 && point % 4 == 0) {
+            if (point > 0 && point % 3 == 0) {
                 if (intomaker) {
                     maker = true;
                     intomaker = false;
