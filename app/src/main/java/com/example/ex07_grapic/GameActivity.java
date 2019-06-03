@@ -18,7 +18,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
-import android.widget.Toast;
+import android.view.WindowManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +66,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);   //엑티비티 실행중 화면 꺼지는 걸 방지
         gameover = false;
         Intent reciver = getIntent();
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);  //센서 메니저 얻기
@@ -137,7 +138,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         sensorManager.unregisterListener(this);
     }
 
-
+    //////////////////////////////////////////////////////////////////////////////////////////////////
     //gameover뷰
     class GameOverView extends View {
         Drawable overBg;
@@ -185,9 +186,12 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         }
 
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //내부 클래스
     class MyView extends View implements Runnable{
         boolean stopped=false;
+
         //생성자
         public MyView(Context context) {
             super(context);
@@ -300,14 +304,15 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                         }
                         Rect itemrect = new Rect(itemmov.getIx(), itemmov.getIy(), itemmov.getIx() + itemWidth, itemmov.getIy() + itemHeight);
                         if (itemrect.intersect(rectG)) {
+
                             switch (itemmov.getState()) {
                                 case 0:
                                     bulletcount = 15;
-                                    Toast.makeText(GameActivity.this, "총알 충전!", Toast.LENGTH_SHORT).show();
+
                                     break;
                                 case 1:
                                     speed++;
-                                    Toast.makeText(GameActivity.this, "이동 속도 증가!", Toast.LENGTH_SHORT).show();
+
                                     //이속 증가~~~~~~추가예정~~~~
                                     break;
                             }
@@ -336,6 +341,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             itemList.add(item);
             maker = false;
         }
+
         public void stop(){
             stopped = true;
             bgmusic.release();
@@ -347,6 +353,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             finish();                                                           //현재 엑티비티 종료
 
         }
+
         //화면 사이즈가 변경될 때( 최초 가로, 최초 세로, 전환 가로, 전환 세로)
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -468,7 +475,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             }
             //총알 출력
 
-            for (int i = 0; i< mlist.size();i++){
+            for (int i = 0; i< mlist.size(); i++){
                 Missile m=mlist.get(i);      //i번쨰 총알
                 missile.setBounds(m.getMx(),m.getMy(),m.getMx()+missileWidth,m.getMy()+missileHeight); //총알 이미지 출력 범위
                 missile.draw(canvas);      // i번째 총알 츨력
