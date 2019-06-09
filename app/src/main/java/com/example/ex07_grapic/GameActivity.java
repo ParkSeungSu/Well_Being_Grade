@@ -55,7 +55,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     int point;                         //점수
     boolean isFire;                      //총알발사 여부
     boolean isHit;                       //폭발 여부
-    boolean gameover;
     boolean maker = false;              //아이템 생성 함수 결정자
     boolean intomaker = false;            //점수에 따른 아이템 생성 여부 결정자
     String tag;
@@ -70,38 +69,19 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);   //엑티비티 실행중 화면 꺼지는 걸 방지
-        gameover = false;
         Intent reciver = getIntent();
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);  //센서 메니저 얻기
         gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY); //그레비티 (회전)센서
         if (reciver.getExtras() != null) {
-            gameover = reciver.getExtras().getBoolean("state");
             point = reciver.getExtras().getInt("point");
         }
-        if (gameover) {
-            GameOverView gameOverView = new GameOverView(this);
-            requestWindowFeature(Window.FEATURE_NO_TITLE); //타이틀 바를 숨김
-            setContentView(gameOverView);
-            endsound = MediaPlayer.create(GameActivity.this, R.raw.endsound);
-            endsound.start();                   //r게임 오버시 출력사운드
-            gameOverView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent sender = new Intent(GameActivity.this, GameActivity.class);
-                    sender.putExtra("state", false);
-                    sender.putExtra("point", 0);
-                    endsound.release();           //게임 화면으로 돌아가면 중지
-                    startActivity(sender);
-                    finish();
-                }
-            });
-        } else {
+
             MyView view = new MyView(this);
             view.setFocusable(true); //키 이벤트를 받을 수 있도록 설정
             requestWindowFeature(Window.FEATURE_NO_TITLE); //타이틀 바를 숨김
             setContentView(view);
 
-        }
+
         //xml이 아닌 내부뷰 (커스텀 뷰)로 화면 이용
 
     }
@@ -112,6 +92,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         Sensor sensor = event.sensor;
         if (sensor == gravitySensor) {
             int xaxis = (int) event.values[0];
+            float yaxis = event.values[1];
             if (xaxis < 0) {
                 x = x + 5 + speed;
                 x = Math.min(width - gunshipWidth, x);
@@ -120,8 +101,17 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 x = x - 5 - speed;
                 x = Math.max(0, x);   //큰값
             }
+            if (yaxis < 6.9 && y > 0) {
+                y = y - 5 + speed;
+                y = Math.min(height - gunshipHeight, y);
+            }
+            if (yaxis > 6.9 && y < (height - gunshipHeight)) {
+                y = y + 5 + speed;
+                y = Math.max(0, y);
+            }
         }
     }
+
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -142,53 +132,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
-    //gameover뷰
-    class GameOverView extends View {
-        Drawable overBg;
 
-        public GameOverView(Context context) {
-            super(context);
-            overBg = getResources().getDrawable(R.drawable.gameover);
-
-        }
-
-        @Override
-        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-            super.onSizeChanged(w, h, oldw, oldh);
-            //화면의 가로,세로 폰을 기준으로 맞춘다.
-            width = getWidth();
-            height = getHeight();
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            overBg.setBounds(0, 0, width, height);
-            overBg.draw(canvas);
-            //점수 출력
-            String strGrad = "점수가 ";
-            Paint paint = new Paint();
-            paint.setColor(Color.RED);
-            paint.setTextSize(70);//폰트 사이즈
-            if (point <= 50) {
-                strGrad = point + "인 당신은 F";
-            }
-            if (point > 50 && point < 100) {
-                strGrad = point + "인 당신은 D";
-            }
-            if (point >= 100 && point < 150) {
-                strGrad = point + "인 당신은 C";
-            }
-            if (point >= 150 && point < 200) {
-                strGrad = point + "인 당신은 B";
-            }
-            if (point >= 200) {
-                strGrad = " A ";
-            }
-            canvas.drawText(strGrad, width - 2 * (width / 4), height / 4, paint);
-            super.onDraw(canvas);
-        }
-
-    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //내부 클래스
@@ -237,6 +181,13 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                         //i번째 적    적을 생성 하게 되면 어레이리스트에 계속 쌓인다.
                         e.setEx(e.getEx()+e.getEnemyGo());
                         e.setEy(e.getEy() + e.getEnemyDown());
+                        Random random = new Random();
+                        if (1 == random.nextInt(100)) {   // 적 기체가 이동할때마다 1~99 랜덤변수를 출력하고 그것이 1과 같으면 미사일 발사
+                            mx2 = e.getEx() + 20;   //
+                            my2 = e.getEy();
+                            Missile2 m2 = new Missile2(e.getEx() + 20, e.getEy() - 20);
+                            mlist2.add(m2);
+                        }
                         if (e.getEx() > width - enemyWidth) {
                             e.changeGo();//enemygo값이 -1을 곱한값이 됨 = 방향전환
                             //x좌표가 우측벽에 닿으면
@@ -380,11 +331,10 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         public void stop(){
             stopped = true;
             bgmusic.release();
-            Intent sender = new Intent(GameActivity.this, GameActivity.class);
-            sender.putExtra("state", true);
+            Intent sender = new Intent(getApplicationContext(), Gameover.class);
             sender.putExtra("point", point);
-            startActivity(sender);
-            overridePendingTransition(0, 0);                //게임오버 화면 전환 애니메이션 없애기
+            startActivityForResult(sender, 101);
+            //게임오버 화면 전환 애니메이션 없애기
             finish();                                                           //현재 엑티비티 종료
 
         }
@@ -423,11 +373,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 Random random = new Random();
                 Enemy e = new Enemy(random.nextInt(width - enemyWidth) + 1, ey, random.nextInt(3));
                 elist.add(e);
-                mx2 = e.getEx() + 20;   //                                                        ## 수정된 부분 (417~421 라인까지)
-                my2 = ey;
-                Missile2 m2 = new Missile2(e.getEx() + 20, ey);
-                mlist2.add(m2);
-
             }
         }
 

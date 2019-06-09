@@ -6,7 +6,7 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_laucher_final_round"
-        android:label="FinalShoot"
+        android:label="WBG"
         android:roundIcon="@mipmap/ic_laucher_final_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
@@ -16,16 +16,24 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".GameActivity"
             android:screenOrientation="portrait" />
-
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Gameover"
+            android:screenOrientation="portrait" />
+
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 
 </manifest>
