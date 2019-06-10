@@ -29,6 +29,9 @@
         <activity
             android:name=".Gameover"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".RankActivity"
+            android:screenOrientation="portrait" />
 
 
         <meta-data

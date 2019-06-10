@@ -37,7 +37,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     MediaPlayer fire;    //발사음
     MediaPlayer hit;     //타격음
     MediaPlayer bgmusic; //배경음악
-    MediaPlayer endsound;//오버 사운드
 
     int speed = 0;
     int bulletcount = 5;
@@ -58,6 +57,8 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     boolean maker = false;              //아이템 생성 함수 결정자
     boolean intomaker = false;            //점수에 따른 아이템 생성 여부 결정자
     String tag;
+    private String player_id; // main에서 받은 플레이어 id 저장할 변수
+
     private SensorManager sensorManager;//센서메니저
     private Sensor gravitySensor;          //센서값 읽어오기 자이로(기울기)
     List<Missile> mlist;                 //총알 리스트
@@ -74,6 +75,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY); //그레비티 (회전)센서
         if (reciver.getExtras() != null) {
             point = reciver.getExtras().getInt("point");
+            player_id = reciver.getStringExtra("id");
         }
 
             MyView view = new MyView(this);
@@ -102,11 +104,11 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 x = Math.max(0, x);   //큰값
             }
             if (yaxis < 6.9 && y > 0) {
-                y = y - 5 + speed;
+                y = y - 5 - speed;
                 y = Math.min(height - gunshipHeight, y);
             }
             if (yaxis > 6.9 && y < (height - gunshipHeight)) {
-                y = y - 5 - speed;
+                y = y + 5 + speed;
                 y = Math.max(0, y);
             }
         }
@@ -333,7 +335,9 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             bgmusic.release();
             Intent sender = new Intent(getApplicationContext(), Gameover.class);
             sender.putExtra("point", point);
+            sender.putExtra("id", player_id);
             startActivityForResult(sender, 101);
+            startActivity(sender);
             //게임오버 화면 전환 애니메이션 없애기
             finish();                                                           //현재 엑티비티 종료
 

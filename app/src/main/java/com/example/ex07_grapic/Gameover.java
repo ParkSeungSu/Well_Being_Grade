@@ -19,7 +19,7 @@ public class Gameover extends AppCompatActivity {
     Button gotoRanking;
     TextView pview;
     TextView grade;
-
+    private String player_id;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,7 +27,10 @@ public class Gameover extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE); //타이틀 바를 숨김
         if (reciver.getExtras() != null) {
             setContentView(R.layout.gameover);
-            point = reciver.getIntExtra("point", 101);
+            endsound = MediaPlayer.create(this, R.raw.endsound);//r게임 오버시 출력사운드
+            endsound.start();
+            point = reciver.getExtras().getInt("point");
+            player_id = reciver.getStringExtra("id");
             restart = findViewById(R.id.restart);
             gotoRanking = findViewById(R.id.rank);
             pview = findViewById(R.id.pstring);
@@ -48,19 +51,14 @@ public class Gameover extends AppCompatActivity {
             if (point >= 50) {
                 grade.setText("A");
             }
-
             ImageView gover = findViewById(R.id.pfview);
-
-            Glide.with(this).asGif().load(R.drawable.gameover).into(gover);
-
-            endsound = MediaPlayer.create(this, R.raw.endsound);
-            endsound.start();
-            //r게임 오버시 출력사운드
+            Glide.with(this).asGif().load(R.drawable.gameover).into(gover); //gif이미지 로드
             restart.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent sender = new Intent(getApplicationContext(), GameActivity.class);
                     sender.putExtra("point", 0);
+                    sender.putExtra("id", player_id);
                     endsound.release();           //게임 화면으로 돌아가면 중지
                     startActivity(sender);
                     finish();
@@ -69,6 +67,13 @@ public class Gameover extends AppCompatActivity {
             gotoRanking.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Intent sender = new Intent(getApplicationContext(), RankActivity.class);
+                    sender.putExtra("point", point);
+                    sender.putExtra("id", player_id);
+                    endsound.release();           //게임 화면으로 돌아가면 중지
+                    startActivity(sender);
+                    finish();
+                    //rank창으로 이동
 
                 }
             });
