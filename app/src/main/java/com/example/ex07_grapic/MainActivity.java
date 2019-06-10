@@ -13,7 +13,6 @@ public class MainActivity extends AppCompatActivity {
     private MediaPlayer mainMusic;
     private Button Gstart;
     private EditText playerName;
-    private Button goRank;
     private String id;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,15 +31,6 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("id", id);
                 startActivity(intent);
                 mainMusic.release();
-            }
-        });
-
-        goRank = findViewById(R.id.goRank);
-        goRank.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent2 = new Intent(getApplicationContext(), RankActivity.class);
-                startActivity(intent2);
             }
         });
 

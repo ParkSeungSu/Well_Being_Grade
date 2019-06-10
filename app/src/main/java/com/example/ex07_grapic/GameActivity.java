@@ -37,7 +37,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     MediaPlayer fire;    //발사음
     MediaPlayer hit;     //타격음
     MediaPlayer bgmusic; //배경음악
-
+    int mspeed = 10;//미사일 속도
     int speed = 0;
     int bulletcount = 5;
     int width, height;   //화면 가로,세로
@@ -219,7 +219,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 //미사일 좌표
                 for (int i = 0; i < mlist.size(); i++){
                     Missile m= mlist.get(i);  //i번째 총알    총알을 발사하게 되면 어레이리스트에 계속 쌓인다.
-                    m.setMy(m.getMy()-10);  //y좌표 감소 처리
+                    m.setMy(m.getMy() - mspeed);  //y좌표 감소 처리
                     if (m.getMy()<0){
                         mlist.remove(i);
                         //y좌표가 0보다 작으면 리스트에서 제거(총알이 맨 위에까지 올라가면)
@@ -296,12 +296,14 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                             switch (itemmov.getState()) {
                                 case 0:
                                     bulletcount = 15;
-
+                                    if (mspeed <= 20) {
+                                        mspeed += 5;
+                                    }
                                     break;
                                 case 1:
                                     speed++;
 
-                                    //이속 증가~~~~~~추가예정~~~~
+
                                     break;
                             }
                             itemList.remove(p);

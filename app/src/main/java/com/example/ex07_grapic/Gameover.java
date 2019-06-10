@@ -64,19 +64,6 @@ public class Gameover extends AppCompatActivity {
                     finish();
                 }
             });
-            gotoRanking.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent sender = new Intent(getApplicationContext(), RankActivity.class);
-                    sender.putExtra("point", point);
-                    sender.putExtra("id", player_id);
-                    endsound.release();           //게임 화면으로 돌아가면 중지
-                    startActivity(sender);
-                    finish();
-                    //rank창으로 이동
-
-                }
-            });
             //r게임 오버시 출력사운드
         }
 
