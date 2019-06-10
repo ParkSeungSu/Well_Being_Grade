@@ -106,7 +106,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 y = Math.min(height - gunshipHeight, y);
             }
             if (yaxis > 6.9 && y < (height - gunshipHeight)) {
-                y = y + 5 + speed;
+                y = y - 5 - speed;
                 y = Math.max(0, y);
             }
         }
