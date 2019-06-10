@@ -3,6 +3,7 @@ package com.example.ex07_grapic;
 public class Missile {
     private int mx;//미사일의 xy좌표
     private int my;
+    private int type = 1;
 
     public Missile(int mx,int my){
         this.mx=mx;
@@ -23,6 +24,15 @@ public class Missile {
 
     public void setMy(int my) {
         this.my = my;
-    }       //getter, setter 정의
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType() {
+        this.type = 2;
+    }
+//getter, setter 정의
 
 }

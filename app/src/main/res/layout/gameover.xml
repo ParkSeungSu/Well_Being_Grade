@@ -8,6 +8,15 @@
     android:orientation="vertical">
 
     <TextView
+        android:id="@+id/pstring2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/alfa_slab_one"
+        android:gravity="center"
+        android:text="TextView"
+        android:textSize="14sp" />
+
+    <TextView
         android:id="@+id/pstring"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

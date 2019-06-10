@@ -28,6 +28,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     Drawable backImg;    //배경
     Drawable gunship;    //사용자 비행기 이미지
     Drawable missile;    //총알 이미지
+    Drawable mDouble;
     Drawable missile2;   //적 총알 이미지
     Drawable enemy;      //적 이미지
     Drawable explousure; //폭발이미지
@@ -43,6 +44,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     int width, height;   //화면 가로,세로
     int gunshipWidth, gunshipHeight;  //사용자 비행기 가로,세로
     int missileWidth, missileHeight;     //미사일 가로,세로
+    int mdWidth, mdHeight;
     int enemyWidth, enemyHeight;        //적 가로, 세로
     int hitWidth, hitHeight;             //폭발 이미지 가로, 세로
     int itemWidth, itemHeight;           //아이템 이미지 가로,세로
@@ -152,6 +154,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             enemy=getResources().getDrawable(R.drawable.enemy);
             explousure=getResources().getDrawable(R.drawable.hit);
             item = getResources().getDrawable(R.drawable.mitem);
+            mDouble = getResources().getDrawable(R.drawable.missiledouble);
             //sound생성
             fire=MediaPlayer.create(GameActivity.this,R.raw.fire);
             hit=MediaPlayer.create(GameActivity.this,R.raw.hit);
@@ -332,6 +335,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             maker = false;
         }
 
+
         public void stop(){
             stopped = true;
             bgmusic.release();
@@ -358,12 +362,15 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             gunshipHeight=gunship.getIntrinsicHeight();
             missileWidth=missile.getIntrinsicWidth();
             missileHeight=missile.getIntrinsicHeight();
+            mdWidth = mDouble.getIntrinsicWidth();
+            mdHeight = mDouble.getIntrinsicHeight();
             enemyWidth=enemy.getIntrinsicWidth();
             enemyHeight=enemy.getIntrinsicHeight();
             hitWidth=explousure.getIntrinsicWidth();
             hitHeight=explousure.getIntrinsicHeight();
             itemWidth = item.getIntrinsicWidth();
             itemHeight = item.getIntrinsicHeight();
+
 
             //비행기 좌표
             x = (width/2) - (gunshipWidth/2);   //정중앙
@@ -469,9 +476,17 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             //총알 출력
 
             for (int i = 0; i< mlist.size(); i++){
-                Missile m=mlist.get(i);      //i번쨰 총알
-                missile.setBounds(m.getMx(),m.getMy(),m.getMx()+missileWidth,m.getMy()+missileHeight); //총알 이미지 출력 범위
-                missile.draw(canvas);      // i번째 총알 츨력
+                Missile m = mlist.get(i);
+                switch (m.getType()) {//i번쨰 총알
+                    case 1:
+                        missile.setBounds(m.getMx(), m.getMy(), m.getMx() + missileWidth, m.getMy() + missileHeight); //총알 이미지 출력 범위
+                        missile.draw(canvas);
+                        break;
+                    case 2:
+                        mDouble.setBounds(m.getMx(), m.getMy(), m.getMx() + mdWidth, m.getMy() + mdHeight);
+                        mDouble.draw(canvas);
+                        break;
+                }// i번째 총알 츨력
             }
             //적총알
             for (int k = 0; k < mlist2.size(); k++) {      //                                     ## 수정된 부분  (522~526 라인까지)
@@ -510,6 +525,9 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 fire.start();   //발사 소리 출력
                 Missile ms = new Missile(x + gunshipWidth / 2, y);
                 bulletcount -= 1;
+                if (mspeed > 20) {
+                    ms.setType();
+                }
                 mlist.add(ms);
             }
             postInvalidate();
@@ -518,4 +536,3 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     }
 
 }
-//그냥 커밋 잘되나 테스트

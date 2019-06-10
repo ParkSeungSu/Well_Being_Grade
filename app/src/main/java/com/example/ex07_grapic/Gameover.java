@@ -16,9 +16,9 @@ public class Gameover extends AppCompatActivity {
     MediaPlayer endsound;
     int point;                         //점수
     Button restart;
-    Button gotoRanking;
     TextView pview;
     TextView grade;
+    TextView name;
     private String player_id;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,12 +27,13 @@ public class Gameover extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE); //타이틀 바를 숨김
         if (reciver.getExtras() != null) {
             setContentView(R.layout.gameover);
+            name = findViewById(R.id.pstring2);
             endsound = MediaPlayer.create(this, R.raw.endsound);//r게임 오버시 출력사운드
             endsound.start();
             point = reciver.getExtras().getInt("point");
             player_id = reciver.getStringExtra("id");
+            name.setText(player_id);
             restart = findViewById(R.id.restart);
-            gotoRanking = findViewById(R.id.rank);
             pview = findViewById(R.id.pstring);
             pview.setText(Integer.toString(point));
             grade = findViewById(R.id.grade);
