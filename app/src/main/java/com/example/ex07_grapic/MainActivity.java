@@ -23,14 +23,17 @@ public class MainActivity extends AppCompatActivity {
         mainMusic = MediaPlayer.create(MainActivity.this, R.raw.mainmusic);
         mainMusic.start();
         Gstart = findViewById(R.id.start);
+
         Gstart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent intent = new Intent(getApplicationContext(), GameActivity.class);
                 id = playerName.getText().toString();
                 intent.putExtra("id", id);
                 startActivity(intent);
                 mainMusic.release();
+
             }
         });
 

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#777777"
+    android:orientation="vertical"
+    tools:context=".Rank">
+
+    <ListView
+        android:id="@+id/ranklist"
+        android:layout_width="wrap_content"
+        android:layout_height="500dp"
+        android:layout_weight="0">
+
+    </ListView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/refresh"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:layout_weight="0"
+            android:fontFamily="@font/alfa_slab_one"
+            android:text="ReFresh" />
+
+        <Button
+            android:id="@+id/gomain"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:layout_weight="0"
+            android:fontFamily="@font/alfa_slab_one"
+            android:text="main" />
+    </LinearLayout>
+</LinearLayout>

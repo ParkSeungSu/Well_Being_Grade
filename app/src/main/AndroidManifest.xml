@@ -11,8 +11,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".Rank"></activity>
         <activity
             android:name=".LoadingActivity"
+            android:noHistory="true"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,14 +24,16 @@
         </activity>
         <activity
             android:name=".GameActivity"
+            android:noHistory="true"
             android:screenOrientation="portrait" />
         <activity
             android:name=".MainActivity"
+            android:noHistory="true"
             android:screenOrientation="portrait" />
         <activity
             android:name=".Gameover"
+            android:noHistory="true"
             android:screenOrientation="portrait" />
-
 
         <meta-data
             android:name="preloaded_fonts"
