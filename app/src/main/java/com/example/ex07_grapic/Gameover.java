@@ -27,7 +27,7 @@ public class Gameover extends AppCompatActivity {
     String sgrade;
     TextView name;
     String sname;
-    String pstring;
+    int pstring;
     private String player_id;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +35,7 @@ public class Gameover extends AppCompatActivity {
         Intent reciver = getIntent();
         requestWindowFeature(Window.FEATURE_NO_TITLE); //타이틀 바를 숨김
         db = openOrCreateDatabase(dbname, MODE_PRIVATE, null);   // 해당 DB가 있으면 열고 없으면 생성해라 ( DB이름, 개인모드, 에러핸들러 )
-        sql = "create table if not exists " + tablename + " (name varchar(20), point varchar(20), grade varchar(20));";    // 테이블을 정의함
+        sql = "create table if not exists " + tablename + " (name varchar(20), point Integer, grade varchar(20));";    // 테이블을 정의함
         db.execSQL(sql);   // db를 실행시키기 위해 사용 select 말고는 다 쓴다(delete, update, insert, create)
         if (reciver.getExtras() != null) {
             setContentView(R.layout.gameover);
@@ -50,7 +50,7 @@ public class Gameover extends AppCompatActivity {
             pview = findViewById(R.id.pstring);
             pview.setText(Integer.toString(point));
             grade = findViewById(R.id.grade);
-            pstring = Integer.toString(point);
+            pstring = point;
             if (point <= 20) {
                 grade.setText("F");
             }

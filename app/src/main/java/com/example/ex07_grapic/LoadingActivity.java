@@ -18,7 +18,7 @@ public class LoadingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         db = openOrCreateDatabase(dbname, MODE_PRIVATE, null);   // 해당 DB가 있으면 열고 없으면 생성해라 ( DB이름, 개인모드, 에러핸들러 )
-        sql = "create table if not exists " + tablename + " (name varchar(20), point varchar(20), grade varchar(20));";    // 테이블을 정의함
+        sql = "create table if not exists " + tablename + " (name varchar(20), point Integer, grade varchar(20));";    // 테이블을 정의함
         db.execSQL(sql);   // db를 실행시키기 위해 사용 select 말고는 다 쓴다(delete, update, insert, create)
         setContentView(R.layout.loading);
 

@@ -38,7 +38,7 @@ public class Rank extends AppCompatActivity {
             for (int i = 0; i < count; i++) {
                 resultset.moveToNext();   // 첫번째에서 다음 레코드가 없을때까지 읽음
                 String str_name = resultset.getString(0);  // 1번째~3번째 컬럼 값들 읽어 저장
-                String str_point = resultset.getString(1);
+                String str_point = Integer.toString(resultset.getInt(1));
                 String str_grade = resultset.getString(2);
                 result[i] = str_name + " " + str_point + " " + str_grade;
                 mMyAdapter.addresult(result[i]);
